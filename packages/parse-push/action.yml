@@ -1,0 +1,15 @@
+name: Probby push parser
+description: ''
+author: Sascha Mann <git@mail.saschamann.eu>
+
+branding:
+  icon: bell
+  color: purple
+
+outputs:
+  payload-file:
+    description: Path to the payload.json file that will be sent to the track repos.
+
+runs:
+  using: 'node12'
+  main: 'dist/index.js'

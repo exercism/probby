@@ -6,8 +6,8 @@
         "bootstrap": "lerna bootstrap",
         "build": "lerna run build",
         "package": "lerna run package",
-        "format": "prettier --write \"**/*.{js,ts,json,yml}\"",
-        "format-check": "prettier --check \"**/*.{js,ts,json,yml}\"",
+        "format": "prettier --write \"**/*.{js,ts,json,yml,md}\"",
+        "format-check": "prettier --check \"**/*.{js,ts,json,yml,md}\"",
         "test": "lerna run test",
         "clean": "lerna clean"
     },

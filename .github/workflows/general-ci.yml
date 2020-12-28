@@ -18,3 +18,25 @@ jobs:
 
       - name: Verify formatting
         run: npm run format-check
+
+  dist-up-to-date:
+    name: Built action is up-to-date
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - run: npm install
+
+      - run: npm run package
+
+      - name: Check that repo contents have not been changed by rebuilding the actions
+        run: |
+          git add -N .
+          changed_files=$(git diff --name-only)
+
+          if [[ -n $changed_files ]]; then
+            echo "The following packages have not been rebuilt:"
+            echo "$changed_files"
+            echo "Please run `npm run build` to update the packages."
+            exit 1
+          fi
