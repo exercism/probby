@@ -4,7 +4,7 @@
     "private": true,
     "main": "dist/index.js",
     "scripts": {
-        "audit-moderate": "npm install && npm audit --audit-level=moderate",
+        "audit-moderate": "npm audit --audit-level=moderate",
         "build": "tsc",
         "package": "ncc build",
         "test": "jest"
