@@ -1,0 +1,11 @@
+parse-push 🔼:
+  - actions/parse-push/**/*
+
+notifier 🔔:
+  - actions/notifier/**/*
+
+issue-receiver 🔽📑:
+  - actions/issue-receiver/**/*
+
+documentation 📖:
+  - '**/*.md'
