@@ -29,6 +29,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      # TODO: Move everything up one level or rename packages to actions if lerna doesn't support it otherwise
       - uses: SaschaMann/probby/packages/parse-push@v1
         id: parse-push
 
