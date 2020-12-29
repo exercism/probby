@@ -3255,8 +3255,7 @@ function run() {
                 throw new Error(`Only pushes to the default branch should trigger notifications. Perhaps you have misconfigured the workflow? Received: ${payload.ref}. Expected: ${defaultBranchRef}.`);
             }
             // TODO: Process commits
-            // PR URL can be guessed if the commit message ends with (#1746) which will work for most squashed PRs
-            // We _could_ parse recently merged PRs but that seems like too much hassle to be worth it
+            // TODO: Use the API to determine the associated PRs: https://docs.github.com/en/free-pro-team@latest/rest/reference/repos#list-pull-requests-associated-with-a-commit
             // Temporarily use a fixed dispatch payload for testing
             const dispatchPayload = {
                 'list-ops': {

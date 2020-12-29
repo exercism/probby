@@ -42,8 +42,7 @@ async function run(): Promise<void> {
         }
 
         // TODO: Process commits
-        // PR URL can be guessed if the commit message ends with (#1746) which will work for most squashed PRs
-        // We _could_ parse recently merged PRs but that seems like too much hassle to be worth it
+        // TODO: Use the API to determine the associated PRs: https://docs.github.com/en/free-pro-team@latest/rest/reference/repos#list-pull-requests-associated-with-a-commit
 
         // Temporarily use a fixed dispatch payload for testing
         const dispatchPayload = {
