@@ -20,7 +20,7 @@ type Commit = {
  *
  * @param files contains a list of files
  */
-async function getSlugs(files: string[]): Promise<Set<string>> {
+async function getSlugs(files: readonly string[]): Promise<Set<string>> {
     const re = /exercises\/([a-z-]*)\//
     let exs = new Set<string>()
 
