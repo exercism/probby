@@ -15,9 +15,7 @@ type Exercise = {
 
 type WebhookPayloadRepositoryDispatch = EventPayloads.WebhookPayloadRepositoryDispatch
 
-function isDispatchContext(
-    _payload: WebhookPayload
-): _payload is WebhookPayloadRepositoryDispatch {
+function isDispatchContext(_payload: WebhookPayload): _payload is WebhookPayloadRepositoryDispatch {
     return context.eventName === 'push'
 }
 
@@ -28,9 +26,7 @@ async function run(): Promise<void> {
         // Confirm that it's a repository_dispatch event
         if (!isDispatchContext(eventPayload)) {
             const actualEvent = context.eventName || '<none>'
-            throw new Error(
-                `Event ${actualEvent} is not supported. Expected "repository_dispatch".`
-            )
+            throw new Error(`Event ${actualEvent} is not supported. Expected "repository_dispatch".`)
         }
 
         // Init octokit
