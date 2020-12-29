@@ -15,7 +15,7 @@ async function run(): Promise<void> {
     try {
         // Confirm that it's a repository_dispatch event
         if (gh.context.eventName != 'repository_dispatch') {
-            throw new Error(`Event ${gh.context.eventName} is not supported`)
+            throw new Error(`Event ${gh.context.eventName} is not supported. Expected "repository_dispatch".`)
         }
 
         // Init octokit
