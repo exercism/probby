@@ -3232,11 +3232,11 @@ function run() {
             // Init octokit
             const octokit = gh.getOctokit(core.getInput('token'));
             const eventPayload = gh.context.payload;
-            const payload = eventPayload.client_payload; // TODO: Create proper type def based on schema
+            const payload = eventPayload.client_payload;
             // Create/update issue for each exercise
             for (const ex of Object.keys(payload)) {
                 const issueTitle = `[Bot] problem-specifications/${ex} has been updated`;
-                const issueBody = `Changes:\n- ${payload['list-ops'].commit_message}\n\nNew tests: ${payload['list-ops'].new_cases}`;
+                const issueBody = `Changes:\n- ${payload[ex].commit_message}\n\nNew tests: ${payload[ex].new_cases}`;
                 octokit.issues.create({
                     owner: gh.context.repo.owner,
                     repo: gh.context.repo.repo,
