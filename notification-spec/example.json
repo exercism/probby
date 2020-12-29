@@ -1,7 +1,7 @@
 {
-  "list-ops": {
-    "commit_sha": "bb38e15ba8e6048ba25a7cca3177688c96c4169b",
-    "commit_message": "list-ops: reimplement ambiguous tests (#1746)",
+  "bb38e15ba8e6048ba25a7cca3177688c96c4169b": {
+    "slug": "list-ops",
+    "message": "list-ops: reimplement ambiguous tests (#1746)",
     "pull_request_html_url": "https://github.com/exercism/problem-specifications/pull/1746",
     "new_cases": [
       "36549237-f765-4a4c-bfd9-5d3a8f7b07d2",

@@ -2,6 +2,7 @@ import * as core from '@actions/core'
 import * as gh from '@actions/github'
 import * as Webhooks from '@octokit/webhooks'
 
+// TODO: Create a common package with types
 type Notification = Record<string, Exercise>
 
 type Exercise = {
