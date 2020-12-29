@@ -1,5 +1,5 @@
 {
-  "name": "@exercism/issue-receiver",
+  "name": "@exercism/probby-issue-receiver",
   "version": "1.0.0-DEV",
   "private": true,
   "main": "lib/main.js",
