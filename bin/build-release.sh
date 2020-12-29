@@ -3,7 +3,7 @@
 branch_name="$(git symbolic-ref --short -q HEAD)"
 repo="$1"
 package="$2"
-version="v$(jq -r .version packages/"$package"/package.json)"
+version="v$(jq -r .version actions/"$package"/package.json)"
 full_version="$package@$version"
 
 if [ -z "$repo" ]; then
@@ -38,7 +38,7 @@ else
     git checkout -b "releases/test/$branch_name/$package/$version"
 fi
 
-cd "packages/$package" || exit 1
+cd "actions/$package" || exit 1
 npm install
 npm run build
 npm run test

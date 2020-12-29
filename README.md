@@ -29,8 +29,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      # TODO: Move everything up one level or rename packages to actions if lerna doesn't support it otherwise
-      - uses: SaschaMann/probby/packages/parse-push@v1
+      - uses: SaschaMann/probby/actions/parse-push@v1
         id: parse-push
 
       - uses: actions/upload-artifact@v2
@@ -50,7 +49,7 @@ jobs:
         with:
           name: payload
 
-      - uses: SaschaMann/probby/packages/notifier@v1
+      - uses: SaschaMann/probby/actions/notifier@v1
         with:
           token: ${{ secrets.PROBBY_TOKEN }}
           # Comma-separated list of track repos to send a notification to
