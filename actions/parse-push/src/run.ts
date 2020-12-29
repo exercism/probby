@@ -1,4 +1,4 @@
-import * as core from '@actions/core'
+import { getInput, warning, debug, setFailed, setOutput } from '@actions/core'
 import { exec, ExecOptions } from '@actions/exec'
 import { context, getOctokit } from '@actions/github'
 import type { WebhookPayload } from '@actions/github/lib/interfaces'
@@ -8,10 +8,11 @@ import * as path from 'path'
 
 type DispatchPayload = Record<string, Commit>
 
-type RemoteCommit = {
+type RemoteCommit = Readonly<{
     id: string
     message: string
-}
+    modified: readonly string[]
+}>
 
 type Commit = {
     message: string
@@ -48,12 +49,13 @@ async function getSlugs(files: readonly string[]): Promise<Set<string>> {
  *
  * @param commit
  */
-async function getSlug(commit: any): Promise<string> {
+async function getSlug(commit: RemoteCommit): Promise<string> {
     const candidates = await getSlugs(commit.modified)
 
     // Assumption: Commits may only modify one exercise
+    // TODO: drop this
     if (candidates.size != 1) {
-        core.warning(
+        warning(
             `${candidates.size} exercises changed in commit ${commit.id}. Currently only one exercise per commit is supported.`
         )
         return ''
@@ -73,11 +75,11 @@ async function getSlug(commit: any): Promise<string> {
  */
 export async function getPullRequestHtmlUrl(
     commitSha: string,
-    token = core.getInput('token'),
+    token = getInput('token'),
     repo = context.repo
 ): Promise<string | null> {
-    const octokit = getOctokit(token)
-    const pullCandidates = await octokit.repos.listPullRequestsAssociatedWithCommit({
+    const { repos } = getOctokit(token)
+    const pullCandidates = await repos.listPullRequestsAssociatedWithCommit({
         owner: repo.owner,
         repo: repo.repo,
         commit_sha: commitSha,
@@ -101,13 +103,13 @@ export async function getPullRequestHtmlUrl(
     })
 
     if (pulls.length === 0) {
-        core.warning(`Could not determine a PR associated with ${commitSha};`)
+        warning(`Could not determine a PR associated with ${commitSha};`)
         return null
     }
 
     // Assumption: Commits only occur once on the default branch
     if (pulls.length != 1) {
-        core.warning(
+        warning(
             `Could not determine a PR associated with ${commitSha}` +
                 `Found more than one candidate: ${pulls}. Expected a unique association.`
         )
@@ -143,14 +145,14 @@ async function getNewCases(commitSha: string): Promise<string[]> {
     await exec('git', ['diff', `${commitSha}~`, commitSha])
 
     if (err || !out) {
-        core.warning(`Could not parse diff of ${commitSha}: ${err}`)
+        warning(`Could not parse diff of ${commitSha}: ${err}`)
         return []
     }
 
     const matches = ADDED_UUID_PATTERN.exec(out)
     if (!matches) {
         // Print a warning because this may or may not be expected
-        core.warning(`Could not find new test cases in ${commitSha}: ${out}`)
+        warning(`Could not find new test cases in ${commitSha}: ${out}`)
         return []
     }
 
@@ -218,10 +220,10 @@ export async function run(): Promise<void> {
         const tmpDir = mkdtempSync('parse-push-')
         const payloadFile = path.join(tmpDir, 'payload.json')
 
-        core.debug(`Writing payload.json to ${payloadFile}...`)
+        debug(`Writing payload.json to ${payloadFile}...`)
         writeFileSync(payloadFile, JSON.stringify(dispatchPayload))
-        core.setOutput('payload-file', payloadFile)
+        setOutput('payload-file', payloadFile)
     } catch (err) {
-        core.setFailed(err.message)
+        setFailed(err.message)
     }
 }
