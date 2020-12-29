@@ -46,16 +46,10 @@ describe('commit construction functions', () => {
 
             nock('https://api.github.com')
                 .persist()
-                .get(
-                    `/repos/exercism/problem-specifications/commits/${commit}/pulls`
-                )
-                .replyWithFile(
-                    200,
-                    path.join(fixtures, 'associated-pulls-merged.json'),
-                    {
-                        'Content-Type': 'application/json',
-                    }
-                )
+                .get(`/repos/exercism/problem-specifications/commits/${commit}/pulls`)
+                .replyWithFile(200, path.join(fixtures, 'associated-pulls-merged.json'), {
+                    'Content-Type': 'application/json',
+                })
 
             // This is the same as:
             //
@@ -69,9 +63,7 @@ describe('commit construction functions', () => {
                 repo: 'problem-specifications',
             })
 
-            expect(response).toEqual(
-                'https://github.com/exercism/problem-specifications/pull/1746'
-            )
+            expect(response).toEqual('https://github.com/exercism/problem-specifications/pull/1746')
         })
     })
 })

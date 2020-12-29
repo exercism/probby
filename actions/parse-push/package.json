@@ -5,7 +5,9 @@
   "main": "lib/main.js",
   "scripts": {
     "audit-moderate": "npm audit --audit-level=moderate",
+    "prebuild": "rimraf lib",
     "build": "tsc",
+    "prepackage": "npm run build && rimraf dist",
     "package": "ncc build",
     "test": "jest --testRunner jest-circus/runner"
   },
@@ -15,7 +17,8 @@
     "directory": "actions/parse-pr"
   },
   "authors": [
-    "Sascha Mann <git@mail.saschamann.eu>"
+    "Sascha Mann <git@mail.saschamann.eu>",
+    "Derk-Jan Karrenbeld <derk-jan+github@karrenbeld.info>"
   ],
   "license": "AGPL-3.0",
   "dependencies": {
@@ -29,11 +32,13 @@
     "@babel/preset-env": "^7.12.11",
     "@babel/preset-typescript": "^7.12.7",
     "@types/jest": "^26.0.19",
+    "@types/nock": "^11.1.0",
     "@vercel/ncc": "^0.26.1",
     "babel-jest": "^26.6.3",
     "jest": "^26.6.3",
     "jest-circus": "^26.6.3",
-    "nock": "^11.7.2",
+    "nock": "^13.0.5",
+    "rimraf": "^3.0.2",
     "typescript": "^4.1.3"
   }
 }

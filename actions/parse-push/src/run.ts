@@ -4,7 +4,7 @@ import { context, getOctokit } from '@actions/github'
 import type { WebhookPayload } from '@actions/github/lib/interfaces'
 import { EventPayloads } from '@octokit/webhooks'
 import { mkdtempSync, writeFileSync } from 'fs'
-import path from 'path'
+import * as path from 'path'
 
 type DispatchPayload = Record<string, Commit>
 
@@ -77,16 +77,14 @@ export async function getPullRequestHtmlUrl(
     repo = context.repo
 ): Promise<string | null> {
     const octokit = getOctokit(token)
-    const pullCandidates = await octokit.repos.listPullRequestsAssociatedWithCommit(
-        {
-            owner: repo.owner,
-            repo: repo.repo,
-            commit_sha: commitSha,
-            mediaType: {
-                previews: ['groot'], // This endpoint is part of a preview
-            },
-        }
-    )
+    const pullCandidates = await octokit.repos.listPullRequestsAssociatedWithCommit({
+        owner: repo.owner,
+        repo: repo.repo,
+        commit_sha: commitSha,
+        mediaType: {
+            previews: ['groot'], // This endpoint is part of a preview
+        },
+    })
 
     const eventPayload = context.payload
     const configuredDefaultBranch = eventPayload.repository?.default_branch
@@ -94,18 +92,12 @@ export async function getPullRequestHtmlUrl(
     const isDefaultBranch = (branch: string): boolean => {
         // Allows to run this without a configured repository (for example in
         // tests). When the repository is not configured, uses sane defaults.
-        return configuredDefaultBranch
-            ? branch === configuredDefaultBranch
-            : ['main', 'master'].includes(branch)
+        return configuredDefaultBranch ? branch === configuredDefaultBranch : ['main', 'master'].includes(branch)
     }
 
     // Filter out unmerged PRs and PRs with a non-default base branch
     const pulls = pullCandidates.data.filter((pullRequest) => {
-        return (
-            isDefaultBranch(pullRequest.base.ref) &&
-            pullRequest.state == 'closed' &&
-            pullRequest.merge_commit_sha
-        )
+        return isDefaultBranch(pullRequest.base.ref) && pullRequest.state == 'closed' && pullRequest.merge_commit_sha
     })
 
     if (pulls.length === 0) {
@@ -126,7 +118,7 @@ export async function getPullRequestHtmlUrl(
 }
 
 // uuid4 regex from https://stackoverflow.com/questions/11384589/what-is-the-correct-regex-for-matching-values-generated-by-uuid-uuid4-hex/18516125#18516125
-const UUID_V4_PATTERN = /^\+\s*"uuid": "([a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12})"/
+const ADDED_UUID_PATTERN = /^\+\s*"uuid": "([a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12})"/
 
 /**
  * Search the diff of the commit and return a list of all UUIDs added in the commit.
@@ -155,7 +147,7 @@ async function getNewCases(commitSha: string): Promise<string[]> {
         return []
     }
 
-    const matches = UUID_V4_PATTERN.exec(out)
+    const matches = ADDED_UUID_PATTERN.exec(out)
     if (!matches) {
         // Print a warning because this may or may not be expected
         core.warning(`Could not find new test cases in ${commitSha}: ${out}`)
@@ -184,12 +176,9 @@ async function parseCommit(commit: RemoteCommit): Promise<Commit | null> {
 }
 
 type WebhookPayloadPush = EventPayloads.WebhookPayloadPush
+type PushPayload = Omit<WebhookPayloadPush, 'commits'> & { commits: readonly RemoteCommit[] }
 
-function isPushContext(
-    _payload: WebhookPayload
-): _payload is Omit<WebhookPayloadPush, 'commits'> & {
-    commits: readonly RemoteCommit[]
-} {
+function isPushContext(_payload: WebhookPayload): _payload is PushPayload {
     return context.eventName === 'push'
 }
 
@@ -200,20 +189,13 @@ export async function run(): Promise<void> {
         // Confirm that it's a push event
         if (!isPushContext(payload)) {
             const actualEvent = context.eventName || '<none>'
-            throw new Error(
-                `Event ${actualEvent} is not supported. Expected "push".`
-            )
+            throw new Error(`Event ${actualEvent} is not supported. Expected "push".`)
         }
 
         // To prevent mistakes, only act on pushes to main or master branch
         // TODO: Remove probby-tests from this list
         const defaultBranchRef = `refs/heads/${payload.repository.default_branch}`
-        if (
-            !(
-                payload.ref == defaultBranchRef ||
-                payload.ref == 'refs/heads/probby-tests'
-            )
-        ) {
+        if (!(payload.ref == defaultBranchRef || payload.ref == 'refs/heads/probby-tests')) {
             throw new Error(
                 `Only pushes to the default branch should trigger notifications. Perhaps you have misconfigured the workflow? Received: ${payload.ref}. Expected: ${defaultBranchRef}.`
             )

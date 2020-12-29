@@ -8,7 +8,7 @@
     "package": "lerna run package",
     "format": "prettier --write \"**/*.{js,ts,json,yml,md}\"",
     "format-check": "prettier --check \"**/*.{js,ts,json,yml,md}\"",
-    "test": "jest",
+    "test": "lerna run test",
     "clean": "lerna clean"
   },
   "devDependencies": {

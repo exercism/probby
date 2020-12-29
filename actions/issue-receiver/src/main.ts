@@ -23,12 +23,13 @@ function isDispatchContext(
 
 async function run(): Promise<void> {
     try {
-        const { payload: eventPayload } = context
+        const { payload: eventPayload, eventName } = context
 
         // Confirm that it's a repository_dispatch event
         if (!isDispatchContext(eventPayload)) {
+            const actualEvent = context.eventName || '<none>'
             throw new Error(
-                `Event ${context.eventName} is not supported. Expected "repository_dispatch".`
+                `Event ${actualEvent} is not supported. Expected "repository_dispatch".`
             )
         }
 
