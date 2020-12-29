@@ -3245,7 +3245,7 @@ function run() {
         try {
             // Confirm that it's a push event
             if (gh.context.eventName != 'push') {
-                throw new Error(`Event ${gh.context.eventName} is not supported`);
+                throw new Error(`Event ${gh.context.eventName} is not supported. Expected "repository_dispatch".`);
             }
             const payload = gh.context.payload;
             // To prevent mistakes, only act on pushes to main or master branch
