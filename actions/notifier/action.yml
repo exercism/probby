@@ -1,0 +1,24 @@
+name: Probby Notifier
+description: ''
+author: Sascha Mann <git@mail.saschamann.eu>
+
+branding:
+  icon: bell
+  color: purple
+
+inputs:
+  token:
+    description: The PAT of the machine user.
+    required: true
+
+  track-repos:
+    description: A comma-separated list of track repository to send a dispatch event to.
+    required: true
+
+  payload-file:
+    description: Path to the payload.json file that will be sent to the track repos.
+    required: true
+
+runs:
+  using: node12
+  main: dist/index.js
