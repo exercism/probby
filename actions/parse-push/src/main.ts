@@ -155,11 +155,11 @@ async function parseCommit(commit: RemoteCommit): Promise<Commit> {
     const pull_request_html_url = await getPullRequestHtmlUrl(commit.id)
     const new_cases = await getNewCases(commit.id)
 
-    return <Commit>{
+    return {
         message: commit.message,
-        slug: slug,
-        pull_request_html_url: pull_request_html_url,
-        new_cases: new_cases,
+        slug,
+        pull_request_html_url,
+        new_cases
     }
 }
 
