@@ -159,7 +159,7 @@ async function parseCommit(commit: RemoteCommit): Promise<Commit> {
         message: commit.message,
         slug,
         pull_request_html_url,
-        new_cases
+        new_cases,
     }
 }
 

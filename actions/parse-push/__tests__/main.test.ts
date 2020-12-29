@@ -23,10 +23,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-import * as nock from 'nock'
-import * as path from 'path'
+import nock from 'nock'
+import path from 'path'
 
-import * as main from '../src/main'
+import { getPullRequestHtmlUrl } from '../src/main'
 
 const fixtures = path.join(__dirname, 'fixtures')
 
@@ -46,10 +46,15 @@ describe('commit construction functions', () => {
             const commit = '1ec45d4ca4ccae5c3a68c2cf319d29c8ab4028e2'
             nock('https://api.github.com')
                 .persist()
-                .get(`/repos/exercism/problem-specifications/commits/${commit}/pulls`)
-                .replyWithFile(200, path.join(fixtures, 'associated-pulls-merged.json'))
+                .get(
+                    `/repos/exercism/problem-specifications/commits/${commit}/pulls`
+                )
+                .replyWithFile(
+                    200,
+                    path.join(fixtures, 'associated-pulls-merged.json')
+                )
 
-            console.log(main.getPullRequestHTMLURL(commit))
+            console.log(getPullRequestHtmlUrl(commit))
 
             expect(1).toEqual(1)
 
