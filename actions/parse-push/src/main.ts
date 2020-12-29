@@ -1,12 +1,18 @@
-import * as core from '@actions/core'
-import * as exec from '@actions/exec'
-import * as gh from '@actions/github'
-import * as Webhooks from '@octokit/webhooks'
-import * as fs from 'fs'
-import * as path from 'path'
+import core from '@actions/core'
+import { exec, ExecOptions } from '@actions/exec'
+import { context, getOctokit } from '@actions/github'
+import type { WebhookPayload } from '@actions/github/lib/interfaces'
+import { EventPayloads } from '@octokit/webhooks'
+import { mkdtempSync, writeFileSync } from 'fs'
+import path from 'path'
 
 // TODO: Create a common package with types
 type DispatchPayload = Record<string, Commit>
+
+type RemoteCommit = {
+    id: string
+    message: string
+}
 
 type Commit = {
     message: string
@@ -21,17 +27,17 @@ type Commit = {
  * @param files contains a list of files
  */
 async function getSlugs(files: readonly string[]): Promise<Set<string>> {
-    const re = /exercises\/([a-z-]*)\//
-    let exs = new Set<string>()
+    const pattern = /exercises\/([a-z-]*)\//
+    const slugs = new Set<string>()
 
-    for (const f of files) {
-        const m = re.exec(f)
-        if (m) {
-            exs.add(m[0])
+    for (const file of files) {
+        const matches = pattern.exec(file)
+        if (matches) {
+            slugs.add(matches[0])
         }
     }
 
-    return exs
+    return slugs
 }
 
 /**
@@ -49,7 +55,7 @@ async function getSlug(commit: any): Promise<string> {
     // Assumption: Commits may only modify one exercise
     if (candidates.size != 1) {
         core.warning(
-            `${candidates.size} exercises changed in commit ${commit.id}. Currently only one exercise per commit is supported.`,
+            `${candidates.size} exercises changed in commit ${commit.id}. Currently only one exercise per commit is supported.`
         )
         return ''
     }
@@ -64,29 +70,39 @@ async function getSlug(commit: any): Promise<string> {
  *             Due to the nature of problem-specs, this will generally hold true.
  *
  * @returns The PR associated with the commit.
- * @param commit_sha
+ * @param commitSha
  */
-export async function getPullRequestHTMLURL(commit_sha: string): Promise<string> {
-    const octokit = gh.getOctokit(core.getInput('token'))
-    const pullCandidates = await octokit.repos.listPullRequestsAssociatedWithCommit({
-        owner: gh.context.repo.owner,
-        repo: gh.context.repo.repo,
-        commit_sha: commit_sha,
-        mediaType: {
-            previews: ['groot'], // This endpoint is part of a preview
-        },
-    })
+export async function getPullRequestHtmlUrl(
+    commitSha: string
+): Promise<string> {
+    const octokit = getOctokit(core.getInput('token'))
+    const pullCandidates = await octokit.repos.listPullRequestsAssociatedWithCommit(
+        {
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            commit_sha: commitSha,
+            mediaType: {
+                previews: ['groot'], // This endpoint is part of a preview
+            },
+        }
+    )
 
     // Filter out unmerged PRs and PRs with a non-default base branch
-    const pulls = pullCandidates.data.filter(x => {
-        const eventPayload = gh.context.payload as Webhooks.EventPayloads.WebhookPayloadPush // Otherwise TS will moan about default_branch possibly being undefined
-        return x.base.ref == `${eventPayload.repository.default_branch}` && x.state == 'closed' && x.merge_commit_sha
+    const pulls = pullCandidates.data.filter((x) => {
+        const eventPayload = context.payload
+
+        return (
+            eventPayload.repository &&
+            x.base.ref == `${eventPayload.repository.default_branch}` &&
+            x.state == 'closed' &&
+            x.merge_commit_sha
+        )
     })
 
     // Assumption: Commits only occur once on the default branch
     if (pulls.length != 1) {
         core.warning(
-            `Could not determine a PR associated with ${commit_sha}; more than one candidate: ${pulls}. Expected a unique association.`,
+            `Could not determine a PR associated with ${commitSha}; more than one candidate: ${pulls}. Expected a unique association.`
         )
         return ''
     }
@@ -94,19 +110,19 @@ export async function getPullRequestHTMLURL(commit_sha: string): Promise<string>
     return pulls[0].html_url
 }
 
+// uuid4 regex from https://stackoverflow.com/questions/11384589/what-is-the-correct-regex-for-matching-values-generated-by-uuid-uuid4-hex/18516125#18516125
+const UUID_V4_PATTERN = /^\+\s*"uuid": "([a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12})"/
+
 /**
  * Search the diff of the commit and return a list of all UUIDs added in the commit.
  *
  * @param commit_sha
  */
-async function getNewCases(commit_sha: string): Promise<string[]> {
-    // uuid4 regex from https://stackoverflow.com/questions/11384589/what-is-the-correct-regex-for-matching-values-generated-by-uuid-uuid4-hex/18516125#18516125
-    const re = /^\+\s*"uuid": "([a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12})"/
-
+async function getNewCases(commitSha: string): Promise<string[]> {
     let out = ''
     let err = ''
 
-    const opts: exec.ExecOptions = {}
+    const opts: ExecOptions = {}
     opts.listeners = {
         stdout: (data: Buffer) => {
             out += data.toString()
@@ -115,26 +131,28 @@ async function getNewCases(commit_sha: string): Promise<string[]> {
             err += data.toString()
         },
     }
+
     // git diff COMMIT~ COMMIT
-    await exec.exec('git', ['diff', `${commit_sha}~`, commit_sha])
+    await exec('git', ['diff', `${commitSha}~`, commitSha])
 
     if (err || !out) {
-        core.warning(`Could not parse diff of ${commit_sha}: ${err}`)
+        core.warning(`Could not parse diff of ${commitSha}: ${err}`)
         return []
     }
 
-    const m = re.exec(out)
-    if (!m) {
+    const matches = UUID_V4_PATTERN.exec(out)
+    if (!matches) {
         // Print a warning because this may or may not be expected
-        core.warning(`Could not find new test cases in ${commit_sha}: ${m}`)
+        core.warning(`Could not find new test cases in ${commitSha}: ${out}`)
         return []
     }
-    return m
+
+    return matches
 }
 
-async function parseCommit(commit: any): Promise<Commit> {
+async function parseCommit(commit: RemoteCommit): Promise<Commit> {
     const slug = await getSlug(commit)
-    const pull_request_html_url = await getPullRequestHTMLURL(commit.id)
+    const pull_request_html_url = await getPullRequestHtmlUrl(commit.id)
     const new_cases = await getNewCases(commit.id)
 
     return <Commit>{
@@ -145,36 +163,58 @@ async function parseCommit(commit: any): Promise<Commit> {
     }
 }
 
+type WebhookPayloadPush = EventPayloads.WebhookPayloadPush
+
+function isPushContext(
+    _payload: WebhookPayload
+): _payload is Omit<WebhookPayloadPush, 'commits'> & {
+    commits: readonly RemoteCommit[]
+} {
+    return context.eventName === 'push'
+}
+
 async function run(): Promise<void> {
     try {
-        // Confirm that it's a push event
-        if (gh.context.eventName != 'push') {
-            throw new Error(`Event ${gh.context.eventName} is not supported. Expected "repository_dispatch".`)
-        }
+        const { payload } = context
 
-        const payload = gh.context.payload as Webhooks.EventPayloads.WebhookPayloadPush
+        // Confirm that it's a push event
+        if (!isPushContext(payload)) {
+            throw new Error(
+                `Event ${context.eventName} is not supported. Expected "push".`
+            )
+        }
 
         // To prevent mistakes, only act on pushes to main or master branch
         // TODO: Remove probby-tests from this list
         const defaultBranchRef = `refs/heads/${payload.repository.default_branch}`
-        if (!(payload.ref == defaultBranchRef || payload.ref == 'refs/heads/probby-tests')) {
+        if (
+            !(
+                payload.ref == defaultBranchRef ||
+                payload.ref == 'refs/heads/probby-tests'
+            )
+        ) {
             throw new Error(
-                `Only pushes to the default branch should trigger notifications. Perhaps you have misconfigured the workflow? Received: ${payload.ref}. Expected: ${defaultBranchRef}.`,
+                `Only pushes to the default branch should trigger notifications. Perhaps you have misconfigured the workflow? Received: ${payload.ref}. Expected: ${defaultBranchRef}.`
             )
         }
 
         // Process commits
-        const dispatchPayload = payload.commits.reduce((res, commit) => {
-            res[commit.id] = parseCommit(commit)
-            return res
-        }, {} as DispatchPayload)
+        const dispatchPayload: DispatchPayload = {}
+        const dispatchPayloadPromises = payload.commits.map((remoteCommit) =>
+            parseCommit(remoteCommit).then(
+                (commit) => (dispatchPayload[remoteCommit.id] = commit)
+            )
+        )
+
+        // Wait for all commits to be processed
+        await Promise.all(Object.values(dispatchPayloadPromises))
 
         // Write dispatchPayload to file and set path as output
-        const tmpDir = fs.mkdtempSync('parse-push-')
+        const tmpDir = mkdtempSync('parse-push-')
         const payloadFile = path.join(tmpDir, 'payload.json')
 
         core.debug(`Writing payload.json to ${payloadFile}...`)
-        fs.writeFileSync(payloadFile, JSON.stringify(dispatchPayload))
+        writeFileSync(payloadFile, JSON.stringify(dispatchPayload))
         core.setOutput('payload-file', payloadFile)
     } catch (err) {
         core.setFailed(err.message)
