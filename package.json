@@ -8,11 +8,14 @@
     "package": "lerna run package",
     "format": "prettier --write \"**/*.{js,ts,json,yml,md}\"",
     "format-check": "prettier --check \"**/*.{js,ts,json,yml,md}\"",
-    "test": "lerna run test",
+    "test": "jest",
     "clean": "lerna clean"
   },
   "devDependencies": {
+    "jest": "^26.6.3",
+    "jest-circus": "^26.6.3",
     "lerna": "^3.22.1",
-    "prettier": "^2.2.1"
+    "prettier": "^2.2.1",
+    "ts-jest": "^26.4.4"
   }
 }

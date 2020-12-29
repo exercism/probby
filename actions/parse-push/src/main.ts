@@ -66,7 +66,7 @@ async function getSlug(commit: any): Promise<string> {
  * @returns The PR associated with the commit.
  * @param commit_sha
  */
-async function getPullRequestHTMLURL(commit_sha: string): Promise<string> {
+export async function getPullRequestHTMLURL(commit_sha: string): Promise<string> {
     const octokit = gh.getOctokit(core.getInput('token'))
     const pullCandidates = await octokit.repos.listPullRequestsAssociatedWithCommit({
         owner: gh.context.repo.owner,
