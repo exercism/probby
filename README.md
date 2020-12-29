@@ -84,3 +84,6 @@ jobs:
 
 If you want to do something different than opening an issue to respond to the `repository_dispatch` event, e.g. triggering the test generators of the track, you can write your own action that parses and acts on the `client_payload`.
 You can find the spec of the `client_payload` in [`notification-spec/`](notification-spec/)
+
+If you want to implement the receiving action in your track's language to make it easier to maintain for your track maintainers, you can use a [composite run steps action](https://docs.github.com/en/free-pro-team@latest/actions/creating-actions/creating-a-composite-run-steps-action) instead of a [JavaScript/TypeScript action](https://docs.github.com/en/free-pro-team@latest/actions/creating-actions/creating-a-javascript-action).
+The event payload, including the `client_payload`, can be accessed via the environment variable [`GITHUB_EVENT_PATH`](https://docs.github.com/en/free-pro-team@latest/actions/reference/specifications-for-github-hosted-runners#file-systems).
