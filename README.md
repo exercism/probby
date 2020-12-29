@@ -10,7 +10,7 @@ Probby is the friendly Exercism problem-specs robot.
 2. Create a Personal Access Token (★) with the `public_repo` scope for the machine user.
 3. Create an environment called `probby_environment`
     1. Add up to 6 trusted reviewers as _Required reviewers_. **Make sure to hit _Save protection rules_!**
-    2. Create an **environment** secret `PROBY_TOKEN` with the PAT (★) from above as content.
+    2. Create an **environment** secret `PROBBY_TOKEN` with the PAT (★) from above as content.
 4. Add the workflow below as `.github/workflows/probby.yml`.
 5. Change the value of `track-repos` to suit your needs.
 
