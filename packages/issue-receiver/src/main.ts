@@ -25,6 +25,7 @@ async function run(): Promise<void> {
         const payload = eventPayload.client_payload as Notification
 
         // Create/update issue for each exercise
+        // TODO: Search for existing issues
         for (const ex of Object.keys(payload)) {
             const issueTitle = `[Bot] problem-specifications/${ex} has been updated`
             const issueBody = `Changes:\n- ${payload[ex].commit_message}\n\nNew tests: ${payload[ex].new_cases}`

@@ -3234,6 +3234,7 @@ function run() {
             const eventPayload = gh.context.payload;
             const payload = eventPayload.client_payload;
             // Create/update issue for each exercise
+            // TODO: Search for existing issues
             for (const ex of Object.keys(payload)) {
                 const issueTitle = `[Bot] problem-specifications/${ex} has been updated`;
                 const issueBody = `Changes:\n- ${payload[ex].commit_message}\n\nNew tests: ${payload[ex].new_cases}`;
