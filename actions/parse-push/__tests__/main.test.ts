@@ -26,24 +26,24 @@
 import nock from 'nock'
 import path from 'path'
 
-import { getPullRequestHtmlUrl } from '../src/main'
+import { getPullRequestHtmlUrl } from '../src/run'
 
 const fixtures = path.join(__dirname, 'fixtures')
 
 beforeAll(() => {
-    // Disable executing of runner commands when running tests in actions
-    console.log('::stop-commands::stoptoken')
+    nock.disableNetConnect()
 })
 
 afterAll(() => {
-    // Re-enable executing of runner commands when running tests in actions
-    console.log('::stoptoken::')
+    nock.cleanAll()
+    nock.enableNetConnect()
 })
 
 describe('commit construction functions', () => {
     describe('pull_request_html_url', () => {
-        it('correctly extracts the HTML URL from a commit with a single associated PR', () => {
+        it('correctly extracts the HTML URL from a commit with a single associated PR', async () => {
             const commit = '1ec45d4ca4ccae5c3a68c2cf319d29c8ab4028e2'
+
             nock('https://api.github.com')
                 .persist()
                 .get(
@@ -51,15 +51,27 @@ describe('commit construction functions', () => {
                 )
                 .replyWithFile(
                     200,
-                    path.join(fixtures, 'associated-pulls-merged.json')
+                    path.join(fixtures, 'associated-pulls-merged.json'),
+                    {
+                        'Content-Type': 'application/json',
+                    }
                 )
 
-            console.log(getPullRequestHtmlUrl(commit))
+            // This is the same as:
+            //
+            // process.env['GITHUB_REPOSITORY'] = 'exercism/problem-specifications'
+            // const response = await getPullRequestHtmlUrl(commit, '__fake')
+            //
+            // But doesn't rely on the Environment to be correctly interpreted
+            //
+            const response = await getPullRequestHtmlUrl(commit, '__fake', {
+                owner: 'exercism',
+                repo: 'problem-specifications',
+            })
 
-            expect(1).toEqual(1)
-
-            nock.cleanAll()
-            nock.enableNetConnect()
+            expect(response).toEqual(
+                'https://github.com/exercism/problem-specifications/pull/1746'
+            )
         })
     })
 })
