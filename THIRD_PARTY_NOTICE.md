@@ -3,8 +3,8 @@
 Parts of this software have been derived from other open source software.
 Find their full licence information below.
 
--   [TypeScript Action Template](#typescript-action-template)
--   [GitHub Actions Toolkit](#github-actions-toolkit)
+- [TypeScript Action Template](#typescript-action-template)
+- [GitHub Actions Toolkit](#github-actions-toolkit)
 
 ## [TypeScript Action Template](https://github.com/actions/typescript-action/tree/e849b574f4e0b705c43b503509c07a5c606d8931)
 
