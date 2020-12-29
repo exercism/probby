@@ -3250,8 +3250,7 @@ function run() {
             const payload = gh.context.payload;
             // To prevent mistakes, only act on pushes to main or master branch
             // TODO: Remove probby-tests from this list
-            if (!(payload.ref == 'refs/heads/main' ||
-                payload.ref == 'refs/heads/master' ||
+            if (!(payload.ref == `refs/heads/${payload.repository.default_branch}` ||
                 payload.ref == 'refs/heads/probby-tests')) {
                 throw new Error(`Only pushes to the default branch should trigger notifications. Perhaps you have misconfigured the workflow?`);
             }

@@ -36,8 +36,7 @@ async function run(): Promise<void> {
         // TODO: Remove probby-tests from this list
         if (
             !(
-                payload.ref == 'refs/heads/main' ||
-                payload.ref == 'refs/heads/master' ||
+                payload.ref == `refs/heads/${payload.repository.default_branch}` ||
                 payload.ref == 'refs/heads/probby-tests'
             )
         ) {
