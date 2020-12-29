@@ -20,7 +20,7 @@
     "Sascha Mann <git@mail.saschamann.eu>",
     "Derk-Jan Karrenbeld <derk-jan+github@karrenbeld.info>"
   ],
-  "license": "AGPL-3.0",
+  "license": "AGPL-3.0-only",
   "dependencies": {
     "@actions/core": "^1.2.6",
     "@actions/exec": "^1.0.4",
