@@ -3250,9 +3250,9 @@ function run() {
             const payload = gh.context.payload;
             // To prevent mistakes, only act on pushes to main or master branch
             // TODO: Remove probby-tests from this list
-            if (!(payload.ref == `refs/heads/${payload.repository.default_branch}` ||
-                payload.ref == 'refs/heads/probby-tests')) {
-                throw new Error(`Only pushes to the default branch should trigger notifications. Perhaps you have misconfigured the workflow?`);
+            const defaultBranchRef = `refs/heads/${payload.repository.default_branch}`;
+            if (!(payload.ref == defaultBranchRef || payload.ref == 'refs/heads/probby-tests')) {
+                throw new Error(`Only pushes to the default branch should trigger notifications. Perhaps you have misconfigured the workflow? Received: ${payload.ref}. Expected: ${defaultBranchRef}.`);
             }
             // TODO: Process commits
             // PR URL can be guessed if the commit message ends with (#1746) which will work for most squashed PRs
