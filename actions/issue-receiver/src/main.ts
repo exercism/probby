@@ -1,7 +1,9 @@
-import * as core from '@actions/core'
-import * as gh from '@actions/github'
-import * as Webhooks from '@octokit/webhooks'
+import core from '@actions/core'
+import { context, getOctokit } from '@actions/github'
+import { WebhookPayload } from '@actions/github/lib/interfaces'
+import { EventPayloads } from '@octokit/webhooks'
 
+// TODO: Create a common package with types
 type Notification = Record<string, Exercise>
 
 type Exercise = {
@@ -11,33 +13,43 @@ type Exercise = {
     new_cases: string[]
 }
 
+type WebhookPayloadRepositoryDispatch = EventPayloads.WebhookPayloadRepositoryDispatch
+
+function isDispatchContext(_payload: WebhookPayload): _payload is WebhookPayloadRepositoryDispatch {
+    return context.eventName === 'push'
+}
+
 async function run(): Promise<void> {
     try {
+        const { payload: eventPayload, eventName } = context
+
         // Confirm that it's a repository_dispatch event
-        if (gh.context.eventName != 'repository_dispatch') {
-            throw new Error(`Event ${gh.context.eventName} is not supported. Expected "repository_dispatch".`)
+        if (!isDispatchContext(eventPayload)) {
+            const actualEvent = context.eventName || '<none>'
+            throw new Error(`Event ${actualEvent} is not supported. Expected "repository_dispatch".`)
         }
 
         // Init octokit
-        const octokit = gh.getOctokit(core.getInput('token'))
+        const octokit = getOctokit(core.getInput('token'))
 
-        const eventPayload = gh.context.payload as Webhooks.EventPayloads.WebhookPayloadRepositoryDispatch
         const payload = eventPayload.client_payload as Notification
 
         // Create/update issue for each exercise
         // TODO: Search for existing issues
-        for (const ex of Object.keys(payload)) {
-            const issueTitle = `[Bot] problem-specifications/${ex} has been updated`
-            const issueBody = `Changes:\n- ${payload[ex].commit_message}\n\nNew tests: ${payload[ex].new_cases}`
+        const promises = Object.keys(payload).map((exercise) => {
+            const issueTitle = `[Bot] problem-specifications/${exercise} has been updated`
+            const issueBody = `Changes:\n- ${payload[exercise].commit_message}\n\nNew tests: ${payload[exercise].new_cases}`
 
-            octokit.issues.create({
-                owner: gh.context.repo.owner,
-                repo: gh.context.repo.repo,
+            return octokit.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
                 title: issueTitle,
                 body: issueBody,
                 labels: ['probby 🤖', 'cross-track-consistency'],
             })
-        }
+        })
+
+        await Promise.all(promises)
     } catch (err) {
         core.setFailed(err.message)
     }

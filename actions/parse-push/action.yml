@@ -6,6 +6,12 @@ branding:
   icon: bell
   color: purple
 
+inputs:
+  token:
+    description: The GH token used for accessing the API.
+    default: ${{ github.token }}
+    required: false
+
 outputs:
   payload-file:
     description: Path to the payload.json file that will be sent to the track repos.
