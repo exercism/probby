@@ -177,7 +177,7 @@ export async function run(): Promise<void> {
         // Process commits
         const dispatchPayload: DispatchPayload = {
             event: payload,
-            commits: {}
+            commits: {},
         }
         const dispatchPayloadPromises = payload.commits.map((remoteCommit) =>
             parseCommit(remoteCommit).then((commit) => {

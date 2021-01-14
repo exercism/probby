@@ -168,7 +168,7 @@ function run() {
             // Process commits
             const dispatchPayload = {
                 event: payload,
-                commits: {}
+                commits: {},
             };
             const dispatchPayloadPromises = payload.commits.map((remoteCommit) => parseCommit(remoteCommit).then((commit) => {
                 if (commit) {
