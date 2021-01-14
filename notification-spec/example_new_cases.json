@@ -1,0 +1,18 @@
+{
+  "event": {},
+  "associated_pull_request_html_url": "https://github.com/exercism/problem-specifications/pull/1746",
+  "slugs": ["list-ops"],
+  "commits": {
+    "bb38e15ba8e6048ba25a7cca3177688c96c4169b": {
+      "slugs": ["list-ops"],
+      "new_cases": [
+        "36549237-f765-4a4c-bfd9-5d3a8f7b07d2",
+        "7a626a3c-03ec-42bc-9840-53f280e13067",
+        "d7fcad99-e88e-40e1-a539-4c519681f390",
+        "17214edb-20ba-42fc-bda8-000a5ab525b0",
+        "e1c64db7-9253-4a3d-a7c4-5273b9e2a1bd",
+        "8066003b-f2ff-437e-9103-66e6df474844"
+      ]
+    }
+  }
+}
