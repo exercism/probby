@@ -44,8 +44,8 @@ describe('commit construction functions', () => {
         it('correctly extracts the HTML URL from a commit with a single associated PR', async () => {
             const commit = '1ec45d4ca4ccae5c3a68c2cf319d29c8ab4028e2'
 
-            nock('https://api.github.com')
-                .persist()
+            const scope = nock('https://api.github.com')
+                //.persist()
                 .get(`/repos/exercism/problem-specifications/commits/${commit}/pulls`)
                 .replyWithFile(200, path.join(fixtures, 'associated-pulls-merged.json'), {
                     'Content-Type': 'application/json',
@@ -64,6 +64,7 @@ describe('commit construction functions', () => {
             })
 
             expect(response).toEqual('https://github.com/exercism/problem-specifications/pull/1746')
+            expect(scope.isDone()).toBe(true)
         })
     })
 })
