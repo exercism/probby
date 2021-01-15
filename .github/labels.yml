@@ -7,7 +7,7 @@
   description: Changing current behaviour, enhancing what's already there
   color: a2eeef
 
-- name: good first issue 
+- name: good first issue
   description: Good for newcomers
   color: 7057ff
 
@@ -37,4 +37,3 @@
 # Actions (Receivers)
 - name: issue-receiver 🔽📑
   color: F9D0C4
-
