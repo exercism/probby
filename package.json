@@ -10,7 +10,8 @@
     "format-check": "prettier --check \"**/*.{js,ts,json,yml,md}\"",
     "test": "lerna run test",
     "clean": "lerna clean",
-    "hoist": "lerna link convert"
+    "hoist": "lerna link convert",
+    "postinstall": "npm run bootstrap"
   },
   "devDependencies": {
     "@babel/core": "^7.12.10",

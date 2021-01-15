@@ -1,7 +1,6 @@
 ## Setup
 
-1. Run `npm i` in the root directory. This ensures `lerna` is installed.
-2. Run `npm run bootstrap` to ensure all the repos in this monorepo are set-up.
+1. Run `npm i` in the root directory. This ensures `lerna` is installed and boostrapped.
 
 ## Tests
 
