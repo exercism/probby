@@ -1,10 +1,13 @@
 import nock from 'nock'
-import path from 'path'
-
-const fixtures = path.join(__dirname, 'fixtures')
 
 beforeAll(() => {
     nock.disableNetConnect()
+})
+
+describe('implement at least one test', () => {
+    test.skip('skipping this', () => {
+        //
+    })
 })
 
 afterAll(() => {
