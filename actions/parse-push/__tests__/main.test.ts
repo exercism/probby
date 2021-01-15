@@ -35,7 +35,6 @@ beforeAll(() => {
 })
 
 afterAll(() => {
-    console.log(`scope is done: ${scope.isDone()}`)
     nock.cleanAll()
     nock.enableNetConnect()
 })
@@ -65,6 +64,10 @@ describe('commit construction functions', () => {
             })
 
             expect(response).toEqual('https://github.com/exercism/problem-specifications/pull/1746')
+            
+            setTimeout(() => {
+                scope.done()
+            }, 5000)
         })
     })
 })
