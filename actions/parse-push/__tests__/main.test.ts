@@ -62,7 +62,6 @@ describe('commit construction functions', () => {
                 owner: 'exercism',
                 repo: 'problem-specifications',
             })
-            
             expect(response).toEqual('https://github.com/exercism/problem-specifications/pull/1746')
         })
     })
