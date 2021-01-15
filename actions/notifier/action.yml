@@ -1,6 +1,6 @@
-name: Probby push parser
+name: Probby Notifier
 description: ''
-author: Sascha Mann <git@mail.saschamann.eu>
+author: Sascha Mann <git@mail.saschamann.eu>, Derk-Jan Karrenbeld <derk-jan+github@karrenbeld.info>
 
 branding:
   icon: bell
@@ -8,13 +8,16 @@ branding:
 
 inputs:
   token:
-    description: The GH token used for accessing the API.
-    default: ${{ github.token }}
-    required: false
+    description: The PAT of the machine user
+    required: true
 
-outputs:
+  track-repos:
+    description: A comma-separated list of track repository to send a dispatch event to
+    required: true
+
   payload-file:
     description: Path to the payload.json file that will be sent to the track repos.
+    required: true
 
 runs:
   using: 'node12'
