@@ -86,3 +86,7 @@ You can find the spec of the `client_payload` in [`notification-spec/`](notifica
 
 If you want to implement the receiving action in your track's language to make it easier to maintain for your track maintainers, you can use a [composite run steps action](https://docs.github.com/en/free-pro-team@latest/actions/creating-actions/creating-a-composite-run-steps-action) instead of a [JavaScript/TypeScript action](https://docs.github.com/en/free-pro-team@latest/actions/creating-actions/creating-a-javascript-action).
 The event payload, including the `client_payload`, can be accessed via the environment variable [`GITHUB_EVENT_PATH`](https://docs.github.com/en/free-pro-team@latest/actions/reference/specifications-for-github-hosted-runners#file-systems).
+
+## Development
+
+See [CONTRIBUTING](./CONTRIBUTING.md)

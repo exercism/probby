@@ -1,6 +1,6 @@
-name: Probby push parser
+name: Probby Push Parser
 description: ''
-author: Sascha Mann <git@mail.saschamann.eu>
+author: Sascha Mann <git@mail.saschamann.eu>, Derk-Jan Karrenbeld <derk-jan+github@karrenbeld.info>
 
 branding:
   icon: bell

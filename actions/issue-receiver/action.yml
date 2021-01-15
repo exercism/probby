@@ -1,6 +1,6 @@
 name: Probby Issue Receiver
 description: Create an issue for changes to problem-specs
-author: Sascha Mann <git@mail.saschamann.eu>
+author: Sascha Mann <git@mail.saschamann.eu>, Derk-Jan Karrenbeld <derk-jan+github@karrenbeld.info>
 
 branding:
   icon: bell
@@ -13,5 +13,5 @@ inputs:
     required: false
 
 runs:
-  using: node12
-  main: dist/index.js
+  using: 'node12'
+  main: 'dist/index.js'

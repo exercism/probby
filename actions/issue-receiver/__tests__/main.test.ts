@@ -1,3 +1,16 @@
-test('dummy', async () => {
-    expect(1).toEqual(1)
+import nock from 'nock'
+
+beforeAll(() => {
+    nock.disableNetConnect()
+})
+
+describe('implement at least one test', () => {
+    test.skip('skipping this', () => {
+        //
+    })
+})
+
+afterAll(() => {
+    nock.cleanAll()
+    nock.enableNetConnect()
 })

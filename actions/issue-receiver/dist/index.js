@@ -3,29 +3,25 @@ module.exports =
 /******/ 	var __webpack_modules__ = ({
 
 /***/ 3109:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const run_1 = __webpack_require__(7884);
+// The reason this is imported from a different file is that this is a
+// side-effect. That's fine when running this on the Github Action's Platform,
+// but not when doing anything else, such as running tests.
+run_1.run();
+
+
+/***/ }),
+
+/***/ 7884:
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -36,39 +32,45 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const core = __importStar(__webpack_require__(2186));
-const gh = __importStar(__webpack_require__(5438));
+exports.run = void 0;
+const core_1 = __webpack_require__(2186);
+const github_1 = __webpack_require__(5438);
+function isDispatchContext(_payload) {
+    return github_1.context.eventName === 'push';
+}
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
+            const { payload: eventPayload, eventName } = github_1.context;
             // Confirm that it's a repository_dispatch event
-            if (gh.context.eventName != 'repository_dispatch') {
-                throw new Error(`Event ${gh.context.eventName} is not supported. Expected "repository_dispatch".`);
+            if (!isDispatchContext(eventPayload)) {
+                const actualEvent = github_1.context.eventName || '<none>';
+                throw new Error(`Event ${actualEvent} is not supported. Expected "repository_dispatch".`);
             }
             // Init octokit
-            const octokit = gh.getOctokit(core.getInput('token'));
-            const eventPayload = gh.context.payload;
+            const octokit = github_1.getOctokit(core_1.getInput('token'));
             const payload = eventPayload.client_payload;
             // Create/update issue for each exercise
             // TODO: Search for existing issues
-            for (const ex of Object.keys(payload)) {
-                const issueTitle = `[Bot] problem-specifications/${ex} has been updated`;
-                const issueBody = `Changes:\n- ${payload[ex].commit_message}\n\nNew tests: ${payload[ex].new_cases}`;
-                octokit.issues.create({
-                    owner: gh.context.repo.owner,
-                    repo: gh.context.repo.repo,
+            const promises = Object.keys(payload).map((exercise) => {
+                const issueTitle = `[Bot] problem-specifications/${exercise} has been updated`;
+                const issueBody = `Changes:\n- ${payload[exercise].commit_message}\n\nNew tests: ${payload[exercise].new_cases}`;
+                return octokit.issues.create({
+                    owner: github_1.context.repo.owner,
+                    repo: github_1.context.repo.repo,
                     title: issueTitle,
                     body: issueBody,
                     labels: ['probby 🤖', 'cross-track-consistency'],
                 });
-            }
+            });
+            yield Promise.all(promises);
         }
         catch (err) {
-            core.setFailed(err.message);
+            core_1.setFailed(err.message);
         }
     });
 }
-run();
+exports.run = run;
 
 
 /***/ }),

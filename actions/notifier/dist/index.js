@@ -3,29 +3,25 @@ module.exports =
 /******/ 	var __webpack_modules__ = ({
 
 /***/ 3109:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const run_1 = __webpack_require__(7884);
+// The reason this is imported from a different file is that this is a
+// side-effect. That's fine when running this on the Github Action's Platform,
+// but not when doing anything else, such as running tests.
+run_1.run();
+
+
+/***/ }),
+
+/***/ 7884:
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -36,35 +32,38 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const core = __importStar(__webpack_require__(2186));
-const gh = __importStar(__webpack_require__(5438));
-const fs = __importStar(__webpack_require__(5747));
+exports.run = void 0;
+const core_1 = __webpack_require__(2186);
+const github_1 = __webpack_require__(5438);
+const fs_1 = __webpack_require__(5747);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             // Init octokit client
-            const octokit = gh.getOctokit(core.getInput('token'));
+            const octokit = github_1.getOctokit(core_1.getInput('token'));
             // Load dispatch payload
-            const payloadFile = core.getInput('payload-file');
-            const payload = JSON.parse(fs.readFileSync(payloadFile).toString());
-            const repos = core.getInput('track-repos').split(',');
+            const payloadFile = core_1.getInput('payload-file');
+            const payload = JSON.parse(fs_1.readFileSync(payloadFile).toString());
+            const repos = core_1.getInput('track-repos').split(',');
+            const events = [];
             // Send dispatch event to repos
             for (const repo of repos) {
-                core.debug(`Sending dispatch event to ${repo}...`);
-                octokit.repos.createDispatchEvent({
-                    owner: gh.context.repo.owner,
+                core_1.debug(`Sending dispatch event to ${repo}...`);
+                events.push(octokit.repos.createDispatchEvent({
+                    owner: github_1.context.repo.owner,
                     repo: repo,
                     event_type: 'probby-notification',
                     client_payload: payload,
-                });
+                }));
             }
+            yield Promise.all(events);
         }
         catch (err) {
-            core.setFailed(err.message);
+            core_1.setFailed(err.message);
         }
     });
 }
-run();
+exports.run = run;
 
 
 /***/ }),

@@ -1,6 +1,6 @@
 name: Probby Notifier
 description: ''
-author: Sascha Mann <git@mail.saschamann.eu>
+author: Sascha Mann <git@mail.saschamann.eu>, Derk-Jan Karrenbeld <derk-jan+github@karrenbeld.info>
 
 branding:
   icon: bell
@@ -8,11 +8,11 @@ branding:
 
 inputs:
   token:
-    description: The PAT of the machine user.
+    description: The PAT of the machine user
     required: true
 
   track-repos:
-    description: A comma-separated list of track repository to send a dispatch event to.
+    description: A comma-separated list of track repository to send a dispatch event to
     required: true
 
   payload-file:
@@ -20,5 +20,5 @@ inputs:
     required: true
 
 runs:
-  using: node12
-  main: dist/index.js
+  using: 'node12'
+  main: 'dist/index.js'
