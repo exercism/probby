@@ -6,7 +6,12 @@ import { EventPayloads } from '@octokit/webhooks'
 import { mkdtempSync, writeFileSync } from 'fs'
 import * as path from 'path'
 
-type DispatchPayload = Record<string, Commit>
+type DispatchPayload = {
+    event: WebhookPayload
+    associated_pull_request_html_url?: string
+    slugs?: Set<string>
+    commits: Record<string, Commit>
+}
 
 type RemoteCommit = Readonly<{
     id: string
@@ -15,9 +20,7 @@ type RemoteCommit = Readonly<{
 }>
 
 type Commit = {
-    message: string
-    slug?: string
-    pull_request_html_url?: string
+    slugs?: Set<string>
     new_cases?: string[]
 }
 
@@ -38,30 +41,6 @@ async function getSlugs(files: readonly string[]): Promise<Set<string>> {
     }
 
     return slugs
-}
-
-/**
- * Parse the files modified in the commit and extract the exercise slug.
- *
- * Assumption: Commits may only modify one exercise.
- *             This usually holds true but there may be exceptions.
- *             In those cases, show a warning and return an empty slug.
- *
- * @param commit
- */
-async function getSlug(commit: RemoteCommit): Promise<string> {
-    const candidates = await getSlugs(commit.modified)
-
-    // Assumption: Commits may only modify one exercise
-    // TODO: drop this
-    if (candidates.size != 1) {
-        warning(
-            `${candidates.size} exercises changed in commit ${commit.id}. Currently only one exercise per commit is supported.`
-        )
-        return ''
-    }
-
-    return candidates.values().next().value
 }
 
 /**
@@ -160,19 +139,10 @@ async function getNewCases(commitSha: string): Promise<string[]> {
 }
 
 async function parseCommit(commit: RemoteCommit): Promise<Commit | null> {
-    const slug = await getSlug(commit)
-    const pull_request_html_url = await getPullRequestHtmlUrl(commit.id)
-
-    if (!pull_request_html_url) {
-        return null
-    }
-
-    const new_cases = await getNewCases(commit.id)
+    const [slugs, new_cases] = await Promise.all([getSlugs(commit.modified), getNewCases(commit.id)])
 
     return {
-        message: commit.message,
-        slug,
-        pull_request_html_url,
+        slugs,
         new_cases,
     }
 }
@@ -204,11 +174,14 @@ export async function run(): Promise<void> {
         }
 
         // Process commits
-        const dispatchPayload: DispatchPayload = {}
+        const dispatchPayload: DispatchPayload = {
+            event: payload,
+            commits: {},
+        }
         const dispatchPayloadPromises = payload.commits.map((remoteCommit) =>
             parseCommit(remoteCommit).then((commit) => {
                 if (commit) {
-                    dispatchPayload[remoteCommit.id] = commit
+                    dispatchPayload.commits[remoteCommit.id] = commit
                 }
             })
         )

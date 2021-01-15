@@ -57,27 +57,6 @@ function getSlugs(files) {
     });
 }
 /**
- * Parse the files modified in the commit and extract the exercise slug.
- *
- * Assumption: Commits may only modify one exercise.
- *             This usually holds true but there may be exceptions.
- *             In those cases, show a warning and return an empty slug.
- *
- * @param commit
- */
-function getSlug(commit) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const candidates = yield getSlugs(commit.modified);
-        // Assumption: Commits may only modify one exercise
-        // TODO: drop this
-        if (candidates.size != 1) {
-            core_1.warning(`${candidates.size} exercises changed in commit ${commit.id}. Currently only one exercise per commit is supported.`);
-            return '';
-        }
-        return candidates.values().next().value;
-    });
-}
-/**
  * Find PRs associated with the commit via the GitHub API and filter out unmerged PRs and PRs with non-default base branch.
  *
  * Assumption: Commits only occur once on the default branch.
@@ -160,16 +139,9 @@ function getNewCases(commitSha) {
 }
 function parseCommit(commit) {
     return __awaiter(this, void 0, void 0, function* () {
-        const slug = yield getSlug(commit);
-        const pull_request_html_url = yield getPullRequestHtmlUrl(commit.id);
-        if (!pull_request_html_url) {
-            return null;
-        }
-        const new_cases = yield getNewCases(commit.id);
+        const [slugs, new_cases] = yield Promise.all([getSlugs(commit.modified), getNewCases(commit.id)]);
         return {
-            message: commit.message,
-            slug,
-            pull_request_html_url,
+            slugs,
             new_cases,
         };
     });
@@ -193,10 +165,13 @@ function run() {
                 throw new Error(`Only pushes to the default branch should trigger notifications. Perhaps you have misconfigured the workflow? Received: ${payload.ref}. Expected: ${defaultBranchRef}.`);
             }
             // Process commits
-            const dispatchPayload = {};
+            const dispatchPayload = {
+                event: payload,
+                commits: {},
+            };
             const dispatchPayloadPromises = payload.commits.map((remoteCommit) => parseCommit(remoteCommit).then((commit) => {
                 if (commit) {
-                    dispatchPayload[remoteCommit.id] = commit;
+                    dispatchPayload.commits[remoteCommit.id] = commit;
                 }
             }));
             // Wait for all commits to be processed
