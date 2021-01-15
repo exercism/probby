@@ -139,8 +139,7 @@ async function getNewCases(commitSha: string): Promise<string[]> {
 }
 
 async function parseCommit(commit: RemoteCommit): Promise<Commit | null> {
-    const slugs = await getSlugs(commit.modified)
-    const new_cases = await getNewCases(commit.id)
+    const [slugs, new_cases] = await Promise.all([getSlugs(commit.modified), getNewCases(commit.id)])
 
     return {
         slugs,
