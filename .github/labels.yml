@@ -11,7 +11,7 @@
   description: Good for newcomers
   color: 7057ff
 
-- name: invalid ❌
+- name: invalid
   description: This doesn't seem right
   color: ffffff
 
