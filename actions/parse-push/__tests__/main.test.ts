@@ -63,11 +63,9 @@ describe('commit construction functions', () => {
                 repo: 'problem-specifications',
             })
 
-            expect(response).toEqual('https://github.com/exercism/problem-specifications/pull/1746')
+            console.log(`scope is done: ${scope.isDone()}`)
             
-            setTimeout(() => {
-                scope.done()
-            }, 5000)
+            expect(response).toEqual('https://github.com/exercism/problem-specifications/pull/1746')
         })
     })
 })
