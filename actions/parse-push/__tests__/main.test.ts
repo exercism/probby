@@ -42,7 +42,7 @@ afterAll(() => {
 describe('commit construction functions', () => {
     describe('pull_request_html_url', () => {
         it('correctly extracts the HTML URL from a commit with a single associated PR', async () => {
-            const commit = '1ec45d4ca4ccae5c3a68c2cf319d29c8ab4028e2'
+            const commit = 'bb38e15ba8e6048ba25a7cca3177688c96c4169b'
 
             nock('https://api.github.com')
                 .persist()
