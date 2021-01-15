@@ -1,3 +1,13 @@
-test('dummy', async () => {
-    expect(1).toEqual(1)
+import nock from 'nock'
+import path from 'path'
+
+const fixtures = path.join(__dirname, 'fixtures')
+
+beforeAll(() => {
+    nock.disableNetConnect()
+})
+
+afterAll(() => {
+    nock.cleanAll()
+    nock.enableNetConnect()
 })

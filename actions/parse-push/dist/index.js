@@ -33,7 +33,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.run = exports.getPullRequestHtmlUrl = void 0;
-const core = __webpack_require__(2186);
+const core_1 = __webpack_require__(2186);
 const exec_1 = __webpack_require__(1514);
 const github_1 = __webpack_require__(5438);
 const fs_1 = __webpack_require__(5747);
@@ -69,8 +69,9 @@ function getSlug(commit) {
     return __awaiter(this, void 0, void 0, function* () {
         const candidates = yield getSlugs(commit.modified);
         // Assumption: Commits may only modify one exercise
+        // TODO: drop this
         if (candidates.size != 1) {
-            core.warning(`${candidates.size} exercises changed in commit ${commit.id}. Currently only one exercise per commit is supported.`);
+            core_1.warning(`${candidates.size} exercises changed in commit ${commit.id}. Currently only one exercise per commit is supported.`);
             return '';
         }
         return candidates.values().next().value;
@@ -85,11 +86,11 @@ function getSlug(commit) {
  * @returns The PR associated with the commit.
  * @param commitSha
  */
-function getPullRequestHtmlUrl(commitSha, token = core.getInput('token'), repo = github_1.context.repo) {
+function getPullRequestHtmlUrl(commitSha, token = core_1.getInput('token'), repo = github_1.context.repo) {
     var _a;
     return __awaiter(this, void 0, void 0, function* () {
-        const octokit = github_1.getOctokit(token);
-        const pullCandidates = yield octokit.repos.listPullRequestsAssociatedWithCommit({
+        const { repos } = github_1.getOctokit(token);
+        const pullCandidates = yield repos.listPullRequestsAssociatedWithCommit({
             owner: repo.owner,
             repo: repo.repo,
             commit_sha: commitSha,
@@ -109,12 +110,12 @@ function getPullRequestHtmlUrl(commitSha, token = core.getInput('token'), repo =
             return isDefaultBranch(pullRequest.base.ref) && pullRequest.state == 'closed' && pullRequest.merge_commit_sha;
         });
         if (pulls.length === 0) {
-            core.warning(`Could not determine a PR associated with ${commitSha};`);
+            core_1.warning(`Could not determine a PR associated with ${commitSha};`);
             return null;
         }
         // Assumption: Commits only occur once on the default branch
         if (pulls.length != 1) {
-            core.warning(`Could not determine a PR associated with ${commitSha}` +
+            core_1.warning(`Could not determine a PR associated with ${commitSha}` +
                 `Found more than one candidate: ${pulls}. Expected a unique association.`);
             return null;
         }
@@ -145,13 +146,13 @@ function getNewCases(commitSha) {
         // git diff COMMIT~ COMMIT
         yield exec_1.exec('git', ['diff', `${commitSha}~`, commitSha]);
         if (err || !out) {
-            core.warning(`Could not parse diff of ${commitSha}: ${err}`);
+            core_1.warning(`Could not parse diff of ${commitSha}: ${err}`);
             return [];
         }
         const matches = ADDED_UUID_PATTERN.exec(out);
         if (!matches) {
             // Print a warning because this may or may not be expected
-            core.warning(`Could not find new test cases in ${commitSha}: ${out}`);
+            core_1.warning(`Could not find new test cases in ${commitSha}: ${out}`);
             return [];
         }
         return matches;
@@ -203,12 +204,12 @@ function run() {
             // Write dispatchPayload to file and set path as output
             const tmpDir = fs_1.mkdtempSync('parse-push-');
             const payloadFile = path.join(tmpDir, 'payload.json');
-            core.debug(`Writing payload.json to ${payloadFile}...`);
+            core_1.debug(`Writing payload.json to ${payloadFile}...`);
             fs_1.writeFileSync(payloadFile, JSON.stringify(dispatchPayload));
-            core.setOutput('payload-file', payloadFile);
+            core_1.setOutput('payload-file', payloadFile);
         }
         catch (err) {
-            core.setFailed(err.message);
+            core_1.setFailed(err.message);
         }
     });
 }

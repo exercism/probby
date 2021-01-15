@@ -1,5 +1,5 @@
-name: Probby Issue Receiver
-description: Create an issue for changes to problem-specs
+name: Probby push parser
+description: ''
 author: Sascha Mann <git@mail.saschamann.eu>
 
 branding:
@@ -8,10 +8,14 @@ branding:
 
 inputs:
   token:
-    description: The GH token used to create the issue
+    description: The GH token used for accessing the API.
     default: ${{ github.token }}
     required: false
 
+outputs:
+  payload-file:
+    description: Path to the payload.json file that will be sent to the track repos.
+
 runs:
-  using: node12
-  main: dist/index.js
+  using: 'node12'
+  main: 'dist/index.js'
