@@ -139,8 +139,7 @@ function getNewCases(commitSha) {
 }
 function parseCommit(commit) {
     return __awaiter(this, void 0, void 0, function* () {
-        const slugs = yield getSlugs(commit.modified);
-        const new_cases = yield getNewCases(commit.id);
+        const [slugs, new_cases] = yield Promise.all([getSlugs(commit.modified), getNewCases(commit.id)]);
         return {
             slugs,
             new_cases,
