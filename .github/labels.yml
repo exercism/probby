@@ -1,0 +1,40 @@
+# Generic
+- name: bug 🐛
+  description: Something isn't working
+  color: d73a4a
+
+- name: enhancement 🦄
+  description: Changing current behaviour, enhancing what's already there
+  color: a2eeef
+
+- name: good first issue 
+  description: Good for newcomers
+  color: 7057ff
+
+- name: invalid ❌
+  description: This doesn't seem right
+  color: ffffff
+
+- name: wontfix 🙅‍♀️
+  description: This won't be applied, fixed, worked on, continued
+  color: ffffff
+
+- name: security 🚨
+  description: Security related issue or change
+  color: ff0000
+
+- name: documentation 📖
+  description: Documentation changes
+  color: 1d76db
+
+# Actions (problem-specifications)
+- name: parse-push 🔼
+  color: D4C5F9
+
+- name: notifier 🔔
+  color: D4C5F9
+
+# Actions (Receivers)
+- name: issue-receiver 🔽📑
+  color: F9D0C4
+
