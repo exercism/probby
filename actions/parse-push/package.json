@@ -9,7 +9,7 @@
     "build": "tsc",
     "prepackage": "npm run build && rimraf dist",
     "package": "ncc build",
-    "test": "jest --testRunner jest-circus/runner"
+    "test": "jest --testRunner jest-circus/runner --runInBand"
   },
   "repository": {
     "type": "git",
